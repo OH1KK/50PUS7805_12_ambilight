@@ -2,7 +2,9 @@
 Shell script for Philips 50PUS7805/12 TV ambilight. Minimal bash script that allows you change TV's ambilight color and brightness
 
 USAGE
-`ambilight {+|-|white|yellow|fuchsia|red|silver|gray|olive|purple|maroon|aqua|lime|teal|green|blue|navy|black}`
+````
+ambilight {+|-|white|yellow|fuchsia|red|silver|gray|olive|purple|maroon|aqua|lime|teal|green|blue|navy|black}
+````
 
 Where
 ````
