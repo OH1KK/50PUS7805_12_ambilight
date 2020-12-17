@@ -1,0 +1,82 @@
+#!/bin/sh
+
+IP=192.168.1.100
+
+RGB=""
+if [ ! -x /usr/bin/curl ]; then
+	echo "Required executable /usr/bin/curl not found. Please install it. Exit."
+	exit 1
+fi
+if [ ! -x /usr/bin/jq ]; then
+	echo "Required executable /usr/bin/jq not found. Please install it. Exit."
+	exit 1
+fi
+
+if [ -z $1 ]; then
+	echo "Usage $0 {+|-|white|yellow|fuchsia|red|silver|gray|olive|purple|maroon|aqua|lime|teal|green|blue|navy|black}"
+	echo "+ = lighter"
+	echo "- = darker"
+	exit 0
+fi
+
+lighter() {
+	JQDATA=`/usr/bin/curl -s http://$IP:1925/6/ambilight/cached`
+	R=`echo $JQDATA | jq -r '.layer1.top["0"].r'`
+	G=`echo $JQDATA | jq -r '.layer1.top["0"].g'`
+	B=`echo $JQDATA | jq -r '.layer1.top["0"].b'`
+	echo "$R $G $B"
+	R=$((R+5))
+	G=$((G+5))
+	B=$((B+5))
+	if [ $R -gt 255 ]; then R=255 ; fi
+	if [ $G -gt 255 ]; then G=255 ; fi
+	if [ $B -gt 255 ]; then B=255 ; fi
+	echo "$R $G $B"
+	/usr/bin/curl -s -X POST -d '{ "current": "manual" }' http://$IP:1925/6/ambilight/mode > /dev/null
+	/usr/bin/curl -s -X POST -d '{ "r": '$R', "g": '$G', "b": '$B' }' http://$IP:1925/6/ambilight/cached > /dev/null
+}
+
+darker() {
+	JQDATA=`/usr/bin/curl -s http://$IP:1925/6/ambilight/cached`
+	R=`echo $JQDATA | jq -r '.layer1.top["0"].r'`
+	G=`echo $JQDATA | jq -r '.layer1.top["0"].g'`
+	B=`echo $JQDATA | jq -r '.layer1.top["0"].b'`
+	echo "$R $G $B"
+	R=$((R-5))
+	G=$((G-5))
+	B=$((B-5))
+	if [ $R -lt 0 ]; then R=0 ; fi
+	if [ $G -lt 0 ]; then G=0 ; fi
+	if [ $B -lt 0 ]; then B=0 ; fi
+	echo "$R $G $B"
+	/usr/bin/curl -s -X POST -d '{ "current": "manual" }' http://$IP:1925/6/ambilight/mode > /dev/null
+	/usr/bin/curl -s -X POST -d '{ "r": '$R', "g": '$G', "b": '$B' }' http://$IP:1925/6/ambilight/cached > /dev/null
+}
+
+case $1 in
+	white) RGB='{ "r": 255, "g": 255, "b": 255 }' ;;
+	yellow) RGB='{ "r": 255, "g": 255, "b": 0 }' ;;
+	fuchsia) RGB='{ "r": 255, "g": 0, "b": 255 }' ;;
+	red) RGB='{ "r": 255, "g": 0, "b": 0 }' ;;
+	silver) RGB='{ "r": 192, "g": 192, "b": 192 }' ;;
+	gray) RGB='{ "r": 128, "g": 128, "b": 128 }' ;;
+	olive) RGB='{ "r": 128, "g": 128, "b": 0 }' ;;
+	purple) RGB='{ "r": 128, "g": 0, "b": 128 }' ;;
+	maroon) RGB='{ "r": 128, "g": 0, "b": 0 }' ;;
+	aqua) RGB='{ "r": 0, "g": 255, "b": 255 }' ;;
+	lime) RGB='{ "r": 0, "g": 255, "b": 0 }' ;;
+	teal) RGB='{ "r": 0, "g": 128, "b": 128 }' ;;
+	green) RGB='{ "r": 0, "g": 128, "b": 0 }' ;;
+	blue) RGB='{ "r": 0, "g": 0, "b": 255 }' ;;
+	navy) RGB='{ "r": 0, "g": 0, "b": 128 }' ;;
+	off|black) RGB='{ "r": 0, "g": 0, "b": 0 }' ;;
+	porn) RGB='{ "r": 149, "g": 27, "b": 62 }' ;;
+	+) lighter ;;
+	-) darker ;;
+	*) echo "Unknown color name $1"; exit 1 ;;
+esac
+
+if [ -n "$RGB" ]; then
+	/usr/bin/curl -s -X POST -d '{ "current": "manual" }' http://$IP:1925/6/ambilight/mode > /dev/null
+	/usr/bin/curl -s -X POST -d "$RGB" http://$IP:1925/6/ambilight/cached > /dev/null
+fi
