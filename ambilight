@@ -24,14 +24,12 @@ lighter() {
 	R=`echo $JQDATA | jq -r '.layer1.top["0"].r'`
 	G=`echo $JQDATA | jq -r '.layer1.top["0"].g'`
 	B=`echo $JQDATA | jq -r '.layer1.top["0"].b'`
-	echo "$R $G $B"
 	R=$((R+5))
 	G=$((G+5))
 	B=$((B+5))
 	if [ $R -gt 255 ]; then R=255 ; fi
 	if [ $G -gt 255 ]; then G=255 ; fi
 	if [ $B -gt 255 ]; then B=255 ; fi
-	echo "$R $G $B"
 	/usr/bin/curl -s -X POST -d '{ "current": "manual" }' http://$IP:1925/6/ambilight/mode > /dev/null
 	/usr/bin/curl -s -X POST -d '{ "r": '$R', "g": '$G', "b": '$B' }' http://$IP:1925/6/ambilight/cached > /dev/null
 }
@@ -41,14 +39,12 @@ darker() {
 	R=`echo $JQDATA | jq -r '.layer1.top["0"].r'`
 	G=`echo $JQDATA | jq -r '.layer1.top["0"].g'`
 	B=`echo $JQDATA | jq -r '.layer1.top["0"].b'`
-	echo "$R $G $B"
 	R=$((R-5))
 	G=$((G-5))
 	B=$((B-5))
 	if [ $R -lt 0 ]; then R=0 ; fi
 	if [ $G -lt 0 ]; then G=0 ; fi
 	if [ $B -lt 0 ]; then B=0 ; fi
-	echo "$R $G $B"
 	/usr/bin/curl -s -X POST -d '{ "current": "manual" }' http://$IP:1925/6/ambilight/mode > /dev/null
 	/usr/bin/curl -s -X POST -d '{ "r": '$R', "g": '$G', "b": '$B' }' http://$IP:1925/6/ambilight/cached > /dev/null
 }
